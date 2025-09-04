@@ -1,6 +1,22 @@
+// These variables need to be in a broader scope to be accessible by the global reset function.
+let lastResult;
+let resultContainer;
+
+/**
+ * Opens the Google Form in a new tab and resets the UI for the next scan.
+ * This function is called from the button generated in onScanSuccess.
+ * @param {string} formUrl - The pre-filled Google Form URL.
+ */
+function handleSubmitAndReset(formUrl) {
+    window.open(formUrl, '_blank');
+    resultContainer.style.display = 'none';
+    lastResult = null; // Allow scanning the same code again
+    console.log("UI has been reset for the next scan.");
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    const resultContainer = document.getElementById('result');
-    let lastResult, countResults = 0;
+    resultContainer = document.getElementById('result');
+    let countResults = 0;
 
     function onScanSuccess(decodedText, decodedResult) {
         // To avoid continuous scanning, we can check if the result is new.
@@ -16,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const encodedQrValue = encodeURIComponent(decodedText);
                 const formUrl = `${APP_CONFIG.GOOGLE_FORM_URL}?usp=pp_url&${APP_CONFIG.QR_VALUE_FIELD_ID}=${encodedQrValue}`;
-                buttonHtml = `<button onclick="window.open('${formUrl}', '_blank')" class="submit-btn">Submit to Google Form</button>`;
+                buttonHtml = `<button onclick="handleSubmitAndReset('${formUrl}')" class="submit-btn">Submit & Scan Next</button>`;
             }
 
             // Make the result container visible and display the result
