@@ -7,14 +7,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (decodedText !== lastResult) {
             lastResult = decodedText;
             countResults++;
-
             console.log(`Scan result ${countResults}: ${decodedText}`, decodedResult);
+
+            let buttonHtml;
+            if (typeof APP_CONFIG === 'undefined' || APP_CONFIG.GOOGLE_FORM_URL.includes("YOUR_FORM_ID")) {
+                buttonHtml = `<button class="submit-btn" disabled>Configure Google Form in config.js</button>`;
+                console.warn("Google Form URL/Field ID not configured. Please create and configure config.js.");
+            } else {
+                const encodedQrValue = encodeURIComponent(decodedText);
+                const formUrl = `${APP_CONFIG.GOOGLE_FORM_URL}?usp=pp_url&${APP_CONFIG.QR_VALUE_FIELD_ID}=${encodedQrValue}`;
+                buttonHtml = `<button onclick="window.open('${formUrl}', '_blank')" class="submit-btn">Submit to Google Form</button>`;
+            }
 
             // Make the result container visible and display the result
             resultContainer.style.display = 'block';
             resultContainer.innerHTML = `
-                <p><strong>Success!</strong> Result #${countResults}:</p>
-                <p>${createLink(decodedText)}</p>
+                <p><strong>Success!</strong> QR Code detected:</p>
+                <p class="scanned-text">${createLink(decodedText)}</p>
+                ${buttonHtml}
             `;
         }
     }
